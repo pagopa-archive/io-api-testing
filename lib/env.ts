@@ -1,4 +1,7 @@
-type EnvKey = 'SPID_SESSION_TOKEN';
+export type EnvKey = (
+    'SPID_SESSION_TOKEN'
+    | 'IO_BACKEND_HOST'
+);
 
 export const get = (key: EnvKey) => (
     process.env[key]
