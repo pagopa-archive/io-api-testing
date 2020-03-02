@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "es2018",
+    "outDir": "dist",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "strict": true,
+    "noImplicitAny": true,
+    "declaration": true,
+    "sourceMap": true
+  },
+  "lib": [],
+  "include": ["*", "index.test.ts"],
+  "exclude": ["node_modules"]
+}
