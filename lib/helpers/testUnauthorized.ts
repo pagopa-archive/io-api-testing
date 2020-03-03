@@ -1,4 +1,4 @@
-import fetch from 'node-fetch';
+import fetchApi from '../fetch';
 
 export const testNoToken = (
   it: Function,
@@ -10,7 +10,7 @@ export const testNoToken = (
     const expectedHttpCode = 401;
     const expectedBody = "Unauthorized";
 
-    const client = () => fetch(endpoint, { headers });
+    const client = () => fetchApi(endpoint, { headers });
     const response = await client();
 
     expect(response.status).toBe(expectedHttpCode);
@@ -30,7 +30,7 @@ export const testInvalidToken = (
     const expectedHttpCode = 401;
     const expectedBody = "Unauthorized";
 
-    const client = () => fetch(endpoint, { headers });
+    const client = () => fetchApi(endpoint, { headers });
     const response = await client();
 
     expect(response.status).toBe(expectedHttpCode);
