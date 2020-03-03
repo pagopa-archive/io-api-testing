@@ -4,10 +4,10 @@ import {
   testNoToken
 } from "../../lib/helpers/testUnauthorized";
 
-describe("getUserProfile", () => {
+describe("getApiUserProfile", () => {
   const host = ensureEnvValue("IO_BACKEND_HOST");
   const basePath = ensureEnvValue("IO_BACKEND_BASEPATH");
-  const endpoint = `${host}${basePath}/profile`;
+  const endpoint = `${host}${basePath}/api-profile`;
 
   testNoToken(it, endpoint);
   testInvalidToken(it, endpoint);

@@ -15,7 +15,10 @@ yarn generate
 yarn start 
 ```
 
-You'll be propted with a required input in which you can specify the endpoint of the `io-backend` api to test (basepath must be included). Alternatively, you can specify such value in `IO_BACKEND_HOST` environament variable.
+You'll be propted with a required input in which you can specify reference for the environment to test. Every input item is overridable by passing its specific env variable:
+
+*  backend api host (`IO_BACKEND_HOST`) - hostname, including protocol and excluding trailing `/` 
+*  backend api base path (`IO_BACKEND_BASEPATH`) - basepath, including leading `/` and excluding trailing `/` 
 
 ## License
 Please refer to [IO license agreement](https://github.com/pagopa/io-app/blob/master/LICENSE).
