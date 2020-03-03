@@ -1,49 +1,33 @@
-const { prompt } = require("enquirer");
+import { prompt } from "enquirer";
+import { tryCatch } from "fp-ts/lib/TaskEither";
 
-export const askSessionToken = async (): Promise<string> => {
-  const { sessionToken } = await prompt({
+const singlePrompt = ({ message }: { message: string }) =>
+  prompt({
     type: "input",
-    name: "sessionToken",
-    message: "Insert a valid session token",
+    name: "value",
+    message,
     validate(value: string /*, state, item, index*/) {
       if (!value) {
         return "required";
       }
       return true;
     }
-  });
+  }).then((e: Partial<{ value: string }>) => e.value || "");
 
-  return sessionToken;
-};
+export const askSessionToken = () =>
+  tryCatch<Error, string>(
+    () => singlePrompt({ message: "Insert a valid session token" }),
+    (r: unknown) => new Error()
+  );
 
-export const askIOBackendHost = async (): Promise<string> => {
-  const { ioBackendHost } = await prompt({
-    type: "input",
-    name: "ioBackendHost",
-    message: "Insert the IO Backend host",
-    validate(value: string /*, state, item, index*/) {
-      if (!value) {
-        return "required";
-      }
-      return true;
-    }
-  });
+export const askIOBackendHost = () =>
+  tryCatch<Error, string>(
+    () => singlePrompt({ message: "Insert the IO Backend host" }),
+    (r: unknown) => new Error()
+  );
 
-  return ioBackendHost;
-};
-
-export const askIOBackendBasePath = async (): Promise<string> => {
-  const { ioBackendBasePath } = await prompt({
-    type: "input",
-    name: "ioBackendBasePath",
-    message: "Insert the IO Backend base path",
-    validate(value: string /*, state, item, index*/) {
-      if (!value) {
-        return "required";
-      }
-      return true;
-    }
-  });
-
-  return ioBackendBasePath;
-};
+export const askIOBackendBasePath = () =>
+  tryCatch<Error, string>(
+    () => singlePrompt({ message: "Insert the IO Backend base path" }),
+    (r: unknown) => new Error()
+  );
