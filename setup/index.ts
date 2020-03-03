@@ -5,11 +5,10 @@ import {
   askIOBackendBasePath
 } from "./prompt";
 import { get as getEnvValue, set as setEnvValue, EnvKey } from "../lib/env";
-import { pipe } from "fp-ts/lib/pipeable";
-import { getOrElse, Option, isNone, none, some } from "fp-ts/lib/Option";
+import { Option, none, some } from "fp-ts/lib/Option";
 
 const toPromise = (o: Option<string>) =>
-  isNone(o) ? none : some(Promise.resolve(o.value));
+  o.fold(none, value => some(Promise.resolve(value)));
 
 const promptIfNot = (key: EnvKey, promptFn: () => Promise<string>) => {
   const setter = async () => {
@@ -17,12 +16,7 @@ const promptIfNot = (key: EnvKey, promptFn: () => Promise<string>) => {
     setEnvValue(key, value);
     return value;
   };
-  /*  return pipe(
-    getEnvValue,
-    toPromise,
-    getOrElse(setter),
-  )(key) */
-  return getOrElse(setter)(toPromise(getEnvValue(key)));
+  return toPromise(getEnvValue(key)).getOrElseL(setter);
 };
 
 const testSuiteSetup = async () => {
