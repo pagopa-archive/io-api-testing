@@ -22,36 +22,11 @@ const pick = (obj: any) =>
     {}
   );
 
-class Env {
-  private env: EnvMap;
-  private constructor(args: EnvMap) {
-    const penv = pick(process.env);
-    this.env = { ...penv, ...args };
-  }
+const env: EnvMap = { ...pick(process.env) };
 
-  static instance() {
-    return new Env({});
-  }
+export const get = (key: EnvKey): Option<string> => fromNullable(env[key]);
 
-  get(key: EnvKey): Option<string> {
-    return fromNullable(this.env[key]);
-  }
-
-  set(key: EnvKey, value: any): void {
-    this.env[key] = value;
-  }
-
-  ensure(key: EnvKey): string | never {
-    return this.get(key).getOrElseL(() => {
-      throw new Error(`required value dor "${key}"`);
-    });
-  }
-}
-
-export const get = (key: EnvKey): Option<string> => Env.instance().get(key);
-
-export const set = (key: EnvKey, value: any): void =>
-  Env.instance().set(key, value);
+export const set = (key: EnvKey, value: any): void => (env[key] = value);
 
 export const setAll = (env: EnvMap): void =>
   Object.entries(env).forEach(([key, value]) =>
@@ -61,5 +36,8 @@ export const setAll = (env: EnvMap): void =>
     )
   );
 
-export const ensure = (key: EnvKey): string | never =>
-  Env.instance().ensure(key);
+export const ensure = (key: EnvKey): string | never => {
+  return get(key).getOrElseL(() => {
+    throw new Error(`required value dor "${key}"`);
+  });
+};
