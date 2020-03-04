@@ -1,11 +1,11 @@
 import { Option, fromNullable } from "fp-ts/lib/Option";
 import * as t from "io-ts";
 
-export const EnvKey = t.union([
-  t.literal("SPID_SESSION_TOKEN"),
-  t.literal("IO_BACKEND_HOST"),
-  t.literal("IO_BACKEND_BASEPATH")
-]);
+export const EnvKey = t.keyof({
+  SPID_SESSION_TOKEN: t.string,
+  IO_BACKEND_HOST: t.string,
+  IO_BACKEND_BASEPATH: t.string
+});
 
 export type EnvKey = t.TypeOf<typeof EnvKey>;
 
