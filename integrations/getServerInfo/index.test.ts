@@ -1,5 +1,5 @@
 import fetchApi from "../../lib/fetch";
-import { ensure as ensureEnvValue } from "../../lib/env";
+import { get as getEnvValue } from "../../lib/env";
 
 import { basicResponseDecoder } from "italia-ts-commons/lib/requests";
 import { ServerInfo } from "../../generated/definitions/backend/ServerInfo";
@@ -7,7 +7,9 @@ import { ServerInfo } from "../../generated/definitions/backend/ServerInfo";
 const decoder = basicResponseDecoder(ServerInfo);
 
 describe.only("getServerInfo", () => {
-  const host = ensureEnvValue("IO_BACKEND_HOST");
+  const host = getEnvValue("IO_BACKEND_HOST").getOrElseL(() => {
+    throw new Error(`required value dor "IO_BACKEND_HOST"`);
+  });
   const endpoint = `${host}/info`;
 
   it("should correctly expose server info", async () => {
