@@ -36,7 +36,7 @@ export const setAll = (env: EnvMap): void =>
     )
   );
 
-export const ensure = (key: EnvKey): string | never => {
+export const ensureValueOrThrow = (key: EnvKey): string | never => {
   return get(key).getOrElseL(() => {
     throw new Error(`required value dor "${key}"`);
   });
