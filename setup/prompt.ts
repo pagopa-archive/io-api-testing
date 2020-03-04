@@ -1,5 +1,4 @@
 import { prompt } from "enquirer";
-import { tryCatch } from "fp-ts/lib/TaskEither";
 
 const singlePrompt = ({ message }: { message: string }) =>
   prompt({

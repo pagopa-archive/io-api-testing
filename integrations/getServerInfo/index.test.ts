@@ -10,7 +10,7 @@ describe.only("getServerInfo", () => {
   const host = ensureEnvValue("IO_BACKEND_HOST");
   const endpoint = `${host}/info`;
 
-  it("correctly exposes server info", async () => {
+  it("should correctly expose server info", async () => {
     const headers = {};
     const expectedHttpCode = 200;
 
