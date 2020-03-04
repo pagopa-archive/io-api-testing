@@ -4,28 +4,28 @@ import {
   askIOBackendHost,
   askIOBackendBasePath
 } from "./prompt";
-import { get as getEnvValue, set as setEnvValue, EnvKey } from "../lib/env";
-import { TaskEither } from "fp-ts/lib/TaskEither";
-import { task } from "fp-ts/lib/Task";
+import {
+  get as getEnvValue,
+  setAll as setAllEnvValues,
+  EnvKey,
+} from "../lib/env";
 
-const promptIfNot = (
-  key: EnvKey,
-  promptFn: () => TaskEither<Error, string>
-) => {
-  const setter = () =>
-    promptFn().fold<string>(
-      error => { throw error },
-      value => {
-        setEnvValue(key, value);
-        return value;
-      }
-    );
-  return getEnvValue(key).fold(setter(), task.of);
+const ask = (key: EnvKey, promptFn: () => Promise<string>) => {
+  return getEnvValue(key).fold(promptFn, value => () =>
+    Promise.resolve(value)
+  )();
 };
 
 const testSuiteSetup = async () => {
-  await promptIfNot("IO_BACKEND_HOST", askIOBackendHost).run();
-  await promptIfNot("IO_BACKEND_BASEPATH", askIOBackendBasePath).run();
+  const IO_BACKEND_HOST = await ask("IO_BACKEND_HOST", askIOBackendHost);
+  const IO_BACKEND_BASEPATH = await ask(
+    "IO_BACKEND_BASEPATH",
+    askIOBackendBasePath
+  );
+  setAllEnvValues({
+    IO_BACKEND_HOST,
+    IO_BACKEND_BASEPATH
+  });
 };
 
 export default testSuiteSetup;

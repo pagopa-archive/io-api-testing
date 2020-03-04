@@ -15,19 +15,10 @@ const singlePrompt = ({ message }: { message: string }) =>
   }).then((e: Partial<{ value: string }>) => e.value || "");
 
 export const askSessionToken = () =>
-  tryCatch<Error, string>(
-    () => singlePrompt({ message: "Insert a valid session token" }),
-    (r: unknown) => new Error()
-  );
+  singlePrompt({ message: "Insert a valid session token" });
 
 export const askIOBackendHost = () =>
-  tryCatch<Error, string>(
-    () => singlePrompt({ message: "Insert the IO Backend host" }),
-    (r: unknown) => new Error()
-  );
+  singlePrompt({ message: "Insert the IO Backend host" });
 
 export const askIOBackendBasePath = () =>
-  tryCatch<Error, string>(
-    () => singlePrompt({ message: "Insert the IO Backend base path" }),
-    (r: unknown) => new Error()
-  );
+  singlePrompt({ message: "Insert the IO Backend base path" });
