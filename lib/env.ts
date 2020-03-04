@@ -12,7 +12,7 @@ export type EnvKey = t.TypeOf<typeof EnvKey>;
 export const EnvMap = t.record(EnvKey, t.string);
 export type EnvMap = Partial<t.TypeOf<typeof EnvMap>>;
 
-const pick = (obj: any) =>
+const pickEnvKeys = (obj: any) =>
   Object.keys(obj).reduce<EnvMap>(
     (p, k: string) =>
       EnvKey.decode(k).fold(
@@ -22,7 +22,7 @@ const pick = (obj: any) =>
     {}
   );
 
-const env: EnvMap = { ...pick(process.env) };
+const env: EnvMap = { ...pickEnvKeys(process.env) };
 
 export const get = (key: EnvKey): Option<string> => fromNullable(env[key]);
 
