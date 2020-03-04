@@ -24,20 +24,20 @@ const pickEnvKeys = (obj: any) =>
 
 const env: EnvMap = { ...pickEnvKeys(process.env) };
 
-export const get = (key: EnvKey): Option<string> => fromNullable(env[key]);
+export const getEnvValue = (key: EnvKey): Option<string> => fromNullable(env[key]);
 
-export const set = (key: EnvKey, value: any): void => (env[key] = value);
+export const setEnvValue = (key: EnvKey, value: any): void => (env[key] = value);
 
-export const setAll = (env: EnvMap): void =>
+export const setAllEnvValues = (env: EnvMap): void =>
   Object.entries(env).forEach(([key, value]) =>
     EnvKey.decode(key).fold(
       () => {},
-      k => set(k, value)
+      k => setEnvValue(k, value)
     )
   );
 
 export const ensureValueOrThrow = (key: EnvKey): string | never => {
-  return get(key).getOrElseL(() => {
+  return getEnvValue(key).getOrElseL(() => {
     throw new Error(`required value dor "${key}"`);
   });
 };

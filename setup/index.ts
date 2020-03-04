@@ -5,10 +5,9 @@ import {
   askIOBackendBasePath
 } from "./prompt";
 import {
-  get as getEnvValue,
-  setAll as setAllEnvValues,
-  EnvKey,
-  EnvMap
+  getEnvValue,
+  setAllEnvValues,
+  EnvKey
 } from "../lib/env";
 
 import { tryCatch, taskEitherSeq } from "fp-ts/lib/TaskEither";

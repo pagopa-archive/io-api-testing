@@ -1,4 +1,4 @@
-import { get as getEnvValue } from "../../lib/env";
+import { getEnvValue } from "../../lib/env";
 import fetchApi from "../../lib/fetch";
 
 describe("getApiUserProfile", () => {

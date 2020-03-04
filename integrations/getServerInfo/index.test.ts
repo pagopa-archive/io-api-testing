@@ -1,5 +1,5 @@
 import fetchApi from "../../lib/fetch";
-import { get as getEnvValue } from "../../lib/env";
+import { getEnvValue } from "../../lib/env";
 
 import { basicResponseDecoder } from "italia-ts-commons/lib/requests";
 import { ServerInfo } from "../../generated/definitions/backend/ServerInfo";
