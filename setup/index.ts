@@ -7,14 +7,14 @@ import {
 import {
   getEnvValue,
   setAllEnvValues,
-  EnvKey
+  EnvMap
 } from "../lib/env";
 
 import { tryCatch, taskEitherSeq } from "fp-ts/lib/TaskEither";
 import { toError } from "fp-ts/lib/Either";
 import { array } from "fp-ts/lib/Array";
 
-const ask = (key: EnvKey, promptFn: () => Promise<string>) => {
+const ask = (key: keyof EnvMap, promptFn: () => Promise<string>) => {
   return tryCatch(
     getEnvValue(key).fold(promptFn, value => () => Promise.resolve(value)),
     toError
