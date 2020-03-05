@@ -57,19 +57,16 @@ describe("getServices", () => {
     const response = await client();
     const decoded = await decoder(response);
 
+    expect.assertions(2);
     expect(response.status).toBe(expectedHttpCode);
 
-    if (!decoded)
-      throw new Error(`Expected response to be in the correct format`);
-
-    decoded.fold(
-      e => {
-        console.error(e);
-        throw new Error(`Expected response to be in the correct format`);
-      },
-      ({ value }) => {
-        expect(PaginatedServiceTupleCollection.is(value)).toBe(true);
-      }
-    );
+    if (decoded) {
+      decoded.fold(
+        () => {},
+        ({ value }) => {
+          expect(PaginatedServiceTupleCollection.is(value)).toBe(true);
+        }
+      );
+    }
   });
 });

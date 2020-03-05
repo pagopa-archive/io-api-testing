@@ -6,7 +6,7 @@ import { ServerInfo } from "../../generated/definitions/backend/ServerInfo";
 
 const decoder = basicResponseDecoder(ServerInfo);
 
-describe.only("getServerInfo", () => {
+describe("getServerInfo", () => {
   const host = getEnvValue("IO_BACKEND_HOST").getOrElseL(() => {
     throw new Error(`required value dor "IO_BACKEND_HOST"`);
   });
@@ -20,19 +20,19 @@ describe.only("getServerInfo", () => {
 
     const response = await client();
 
+    expect.assertions(2);
     expect(response.status).toBe(expectedHttpCode);
 
     const decoded = await decoder(response);
 
-    expect(decoded).toBeDefined();
     if (decoded) {
-      const rightFormat = decoded.fold<boolean>(
-        _ => false,
-        _ => true
+      decoded.fold(
+        () => {},
+        ({ value }) => {
+          console.log(value);
+          expect(ServerInfo.is(value)).toBe(true);
+        }
       );
-      expect(rightFormat).toBe(true);
-    } else {
-      throw new Error(`Expected response to be in the correct format`);
     }
   });
 });
