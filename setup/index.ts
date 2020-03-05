@@ -1,14 +1,5 @@
-import {
-  /* askSessionToken, */
-
-  askIOBackendHost,
-  askIOBackendBasePath
-} from "./prompt";
-import {
-  getEnvValue,
-  setAllEnvValues,
-  EnvMap
-} from "../lib/env";
+import { prompt } from "enquirer";
+import { getEnvValue, setAllEnvValues } from "../lib/env";
 
 import { tryCatch, taskEitherSeq } from "fp-ts/lib/TaskEither";
 import { toError } from "fp-ts/lib/Either";
@@ -22,14 +13,33 @@ class ParamReadError extends Error {
   }
 }
 
-const testSuiteSetup = async () => {
+const singlePrompt = ({ message }: { message: string }) => () =>
+  prompt({
+    type: "input",
+    name: "value",
+    message,
+    validate(value: string /*, state, item, index*/) {
+      if (!value) {
+        return "required";
+      }
+      return true;
+    }
+  }).then((e: Partial<{ value: string }>) => e.value || "");
 
+const testSuiteSetup = async () => {
   const backendHostTask = tryCatch(
-    getEnvValue('IO_BACKEND_HOST').fold(askIOBackendHost, value => () => Promise.resolve(value)),
+    getEnvValue("IO_BACKEND_HOST").fold(
+      singlePrompt({ message: "Insert the IO Backend host" }),
+      value => () => Promise.resolve(value)
+    ),
     toError
   );
+
   const backendBasepathTask = tryCatch(
-    getEnvValue('IO_BACKEND_BASEPATH').fold(askIOBackendBasePath, value => () => Promise.resolve(value)),
+    getEnvValue("IO_BACKEND_BASEPATH").fold(
+      singlePrompt({ message: "Insert the IO Backend base path" }),
+      value => () => Promise.resolve(value)
+    ),
     toError
   );
 
