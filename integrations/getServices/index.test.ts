@@ -1,5 +1,10 @@
 import { getEnvValue } from "../../lib/env";
-import fetchApi from '../../lib/fetch';
+import fetchApi from "../../lib/fetch";
+
+import { basicResponseDecoder } from "italia-ts-commons/lib/requests";
+import { PaginatedServiceTupleCollection } from "../../generated/definitions/backend/PaginatedServiceTupleCollection";
+
+const decoder = basicResponseDecoder(PaginatedServiceTupleCollection);
 
 describe("getServices", () => {
   const host = getEnvValue("IO_BACKEND_HOST").getOrElseL(() => {
@@ -7,6 +12,9 @@ describe("getServices", () => {
   });
   const basePath = getEnvValue("IO_BACKEND_BASEPATH").getOrElseL(() => {
     throw new Error(`required value dor "IO_BACKEND_BASEPATH"`);
+  });
+  const sessionToken = getEnvValue("SPID_SESSION_TOKEN").getOrElseL(() => {
+    throw new Error(`required value dor "SPID_SESSION_TOKEN"`);
   });
   const endpoint = `${host}${basePath}/services`;
 
@@ -24,7 +32,7 @@ describe("getServices", () => {
 
     expect(body).toEqual(expectedBody);
   });
-  
+
   it("should return unauthorized in case it's called with an invalid sessionToken", async () => {
     const headers = {};
     const expectedHttpCode = 401;
@@ -38,5 +46,30 @@ describe("getServices", () => {
     const body = await response.text();
 
     expect(body).toEqual(expectedBody);
+  });
+
+  it("should correctly expose service list", async () => {
+    const headers = { Authorization: `Bearer ${sessionToken}` };
+    const expectedHttpCode = 200;
+
+    const client = (): Promise<Response> => fetchApi(endpoint, { headers });
+
+    const response = await client();
+    const decoded = await decoder(response);
+
+    expect(response.status).toBe(expectedHttpCode);
+
+    if (!decoded)
+      throw new Error(`Expected response to be in the correct format`);
+
+    decoded.fold(
+      e => {
+        console.error(e);
+        throw new Error(`Expected response to be in the correct format`);
+      },
+      ({ value }) => {
+        expect(PaginatedServiceTupleCollection.is(value)).toBe(true);
+      }
+    );
   });
 });

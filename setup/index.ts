@@ -1,6 +1,5 @@
 import {
-  /* askSessionToken, */
-
+  askSessionToken,
   askIOBackendHost,
   askIOBackendBasePath
 } from "./prompt";
@@ -30,22 +29,24 @@ class ParamReadError extends Error {
 }
 
 const testSuiteSetup = async () => {
+  const sessionTokenTask = ask("SPID_SESSION_TOKEN", askSessionToken);
   const backendHostTask = ask("IO_BACKEND_HOST", askIOBackendHost);
   const backendBasepathTask = ask("IO_BACKEND_BASEPATH", askIOBackendBasePath);
 
   const sequence = array.sequence(taskEitherSeq);
 
-  return sequence([backendHostTask, backendBasepathTask])
+  return sequence([backendHostTask, backendBasepathTask, sessionTokenTask])
     .fold(
       () => {
         throw new ParamReadError();
       },
       value => value
     )
-    .map(([IO_BACKEND_HOST, IO_BACKEND_BASEPATH]) => {
+    .map(([IO_BACKEND_HOST, IO_BACKEND_BASEPATH, SPID_SESSION_TOKEN]) => {
       setAllEnvValues({
         IO_BACKEND_HOST,
-        IO_BACKEND_BASEPATH
+        IO_BACKEND_BASEPATH,
+        SPID_SESSION_TOKEN
       });
     })
     .run();
