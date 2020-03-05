@@ -1,24 +1,9 @@
-import {
-  askSessionToken,
-  askIOBackendHost,
-  askIOBackendBasePath
-} from "./prompt";
-import {
-  getEnvValue,
-  setAllEnvValues,
-  EnvMap
-} from "../lib/env";
+import { prompt } from "enquirer";
+import { getEnvValue, setAllEnvValues } from "../lib/env";
 
 import { tryCatch, taskEitherSeq } from "fp-ts/lib/TaskEither";
 import { toError } from "fp-ts/lib/Either";
 import { array } from "fp-ts/lib/Array";
-
-const ask = (key: keyof EnvMap, promptFn: () => Promise<string>) => {
-  return tryCatch(
-    getEnvValue(key).fold(promptFn, value => () => Promise.resolve(value)),
-    toError
-  );
-};
 
 class ParamReadError extends Error {
   constructor() {
@@ -28,10 +13,43 @@ class ParamReadError extends Error {
   }
 }
 
+const singlePrompt = ({ message }: { message: string }) => () =>
+  prompt({
+    type: "input",
+    name: "value",
+    message,
+    validate(value: string /*, state, item, index*/) {
+      if (!value) {
+        return "required";
+      }
+      return true;
+    }
+  }).then((e: Partial<{ value: string }>) => e.value || "");
+
 const testSuiteSetup = async () => {
-  const sessionTokenTask = ask("SPID_SESSION_TOKEN", askSessionToken);
-  const backendHostTask = ask("IO_BACKEND_HOST", askIOBackendHost);
-  const backendBasepathTask = ask("IO_BACKEND_BASEPATH", askIOBackendBasePath);
+  const backendHostTask = tryCatch(
+    getEnvValue("IO_BACKEND_HOST").fold(
+      singlePrompt({ message: "Insert the IO Backend host" }),
+      value => () => Promise.resolve(value)
+    ),
+    toError
+  );
+
+  const backendBasepathTask = tryCatch(
+    getEnvValue("IO_BACKEND_BASEPATH").fold(
+      singlePrompt({ message: "Insert the IO Backend base path" }),
+      value => () => Promise.resolve(value)
+    ),
+    toError
+  );
+
+  const sessionTokenTask = tryCatch(
+    getEnvValue("SPID_SESSION_TOKEN").fold(
+      singlePrompt({ message: "Insert a valid session token" }),
+      value => () => Promise.resolve(value)
+    ),
+    toError
+  );
 
   const sequence = array.sequence(taskEitherSeq);
 
