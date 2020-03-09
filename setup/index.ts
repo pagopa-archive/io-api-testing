@@ -1,7 +1,9 @@
 import { prompt } from "enquirer";
-import { getEnvValue, setAllEnvValues } from "../lib/env";
+import { getEnvValue, setAllEnvValues, EnvMap } from "../lib/env";
+import { loginLevel1 } from "../spid-env-test";
 
 import { tryCatch, taskEitherSeq } from "fp-ts/lib/TaskEither";
+import { isNone } from "fp-ts/lib/Option";
 import { toError } from "fp-ts/lib/Either";
 import { array } from "fp-ts/lib/Array";
 
@@ -43,17 +45,27 @@ const testSuiteSetup = async () => {
     toError
   );
 
-  const sessionTokenTask = tryCatch(
-    getEnvValue("SPID_SESSION_TOKEN").fold(
-      singlePrompt({ message: "Insert a valid session token" }),
-      value => () => Promise.resolve(value)
-    ),
-    toError
+  const sessionTokenTask = getEnvValue("SPID_SESSION_TOKEN").fold(
+    loginLevel1({
+      username: "alice.rossi",
+      password: "io-app-test",
+      host: "https://app-backend.dev.io.italia.it"
+    }),
+    value => tryCatch(() => Promise.resolve(value), toError)
   );
+
+  /*   const SPID_LOGIN_HOST = "https://app-backend.dev.io.italia.it";
+  const USERNAME = "alice.rossi";
+  const PASSWORD = "io-app-test";
+  const sessionTokenTask = loginLevel1({
+    username: "alice.rossi",
+    password: "io-app-test",
+    host: "https://app-backend.dev.io.italia.it"
+  }); */
 
   const sequence = array.sequence(taskEitherSeq);
 
-  return sequence([backendHostTask, backendBasepathTask, sessionTokenTask])
+  const x = sequence([backendHostTask, backendBasepathTask, sessionTokenTask])
     .fold(
       () => {
         throw new ParamReadError();
@@ -66,8 +78,9 @@ const testSuiteSetup = async () => {
         IO_BACKEND_BASEPATH,
         SPID_SESSION_TOKEN
       });
-    })
-    .run();
+    });
+
+  return x.run();
 };
 
 export default testSuiteSetup;
