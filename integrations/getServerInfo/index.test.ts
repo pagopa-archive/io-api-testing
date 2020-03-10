@@ -29,7 +29,6 @@ describe("getServerInfo", () => {
       decoded.fold(
         () => {},
         ({ value }) => {
-          console.log(value);
           expect(ServerInfo.is(value)).toBe(true);
         }
       );

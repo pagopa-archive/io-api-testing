@@ -3,8 +3,8 @@ import { getEnvValue, setAllEnvValues, EnvMap } from "../lib/env";
 import { loginLevel1 } from "../spid-env-test";
 
 import { tryCatch, taskEitherSeq } from "fp-ts/lib/TaskEither";
-import { isNone } from "fp-ts/lib/Option";
-import { toError } from "fp-ts/lib/Either";
+import * as OPT from "fp-ts/lib/Option";
+import { toError, fromNullable } from "fp-ts/lib/Either";
 import { array } from "fp-ts/lib/Array";
 
 class ParamReadError extends Error {
@@ -28,7 +28,7 @@ const singlePrompt = ({ message }: { message: string }) => () =>
     }
   }).then((e: Partial<{ value: string }>) => e.value || "");
 
-const testSuiteSetup = async () => {
+const environmentSetup = async () => {
   const backendHostTask = tryCatch(
     getEnvValue("IO_BACKEND_HOST").fold(
       singlePrompt({ message: "Insert the IO Backend host" }),
@@ -45,14 +45,50 @@ const testSuiteSetup = async () => {
     toError
   );
 
+  const spidTestenvHostTask = tryCatch(
+    OPT.fromNullable(process.env.SPID_LOGIN_HOST).fold(
+      singlePrompt({ message: "Insert spid test host" }),
+      value => () => Promise.resolve(value)
+    ),
+    toError
+  );
+
+  const usernameTask = tryCatch(
+    OPT.fromNullable(process.env.SPID_USERNAME).fold(
+      singlePrompt({ message: "Insert username" }),
+      value => () => Promise.resolve(value)
+    ),
+    toError
+  );
+
+  const passwordTask = tryCatch(
+    OPT.fromNullable(process.env.SPID_PASSWORD).fold(
+      singlePrompt({ message: "Insert password" }),
+      value => () => Promise.resolve(value)
+    ),
+    toError
+  );
+
   const sessionTokenTask = getEnvValue("SPID_SESSION_TOKEN").fold(
-    loginLevel1({
-      username: "alice.rossi",
-      password: "io-app-test",
-      host: "https://app-backend.dev.io.italia.it"
-    }),
+    array
+      .sequence(taskEitherSeq)([
+        spidTestenvHostTask,
+        usernameTask,
+        passwordTask
+      ])
+      .chain(([host, username, password]) =>
+        loginLevel1({
+          username,
+          password,
+          host
+        })
+      ),
     value => tryCatch(() => Promise.resolve(value), toError)
   );
+
+  /*   username: "alice.rossi",
+  password: "io-app-test",
+  host: "https://app-backend.dev.io.italia.it" */
 
   /*   const SPID_LOGIN_HOST = "https://app-backend.dev.io.italia.it";
   const USERNAME = "alice.rossi";
@@ -63,24 +99,27 @@ const testSuiteSetup = async () => {
     host: "https://app-backend.dev.io.italia.it"
   }); */
 
-  const sequence = array.sequence(taskEitherSeq);
-
-  const x = sequence([backendHostTask, backendBasepathTask, sessionTokenTask])
+  return array
+    .sequence(taskEitherSeq)([
+      backendHostTask,
+      backendBasepathTask,
+      sessionTokenTask
+    ])
     .fold(
-      () => {
+      reason => {
+        console.error(reason);
         throw new ParamReadError();
       },
-      value => value
-    )
-    .map(([IO_BACKEND_HOST, IO_BACKEND_BASEPATH, SPID_SESSION_TOKEN]) => {
-      setAllEnvValues({
+      ([IO_BACKEND_HOST, IO_BACKEND_BASEPATH, SPID_SESSION_TOKEN]) => ({
         IO_BACKEND_HOST,
         IO_BACKEND_BASEPATH,
         SPID_SESSION_TOKEN
-      });
-    });
-
-  return x.run();
+      })
+    )
+    .run();
 };
 
-export default testSuiteSetup;
+export default async () => {
+  const env = await environmentSetup();
+  setAllEnvValues(env);
+};

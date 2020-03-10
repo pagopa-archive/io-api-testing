@@ -10,23 +10,11 @@ export const EnvMap = t.exact(
 );
 export type EnvMap = t.TypeOf<typeof EnvMap>;
 
-const pickEnvKeys = (obj: any) =>
-  Object.entries(obj).reduce(
-    (p, [k, v]) =>
-      EnvMap.decode({ [k]: v }).fold(
-        () => p,
-        (o: EnvMap) => ({ ...p, ...o })
-      ),
-    {}
-  );
-
-const env: EnvMap = { ...pickEnvKeys(process.env) };
-
 export const getEnvValue = (key: keyof EnvMap): Option<string> =>
-  fromNullable(env[key]);
+  fromNullable(process.env[key]);
 
 export const setEnvValue = (key: keyof EnvMap, value: any): void =>
-  (env[key] = value);
+  (process.env[key] = value);
 
 export const setAllEnvValues = (env: EnvMap): void =>
   Object.entries(env).forEach(([key, value]) =>
