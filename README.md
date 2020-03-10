@@ -17,8 +17,18 @@ yarn start
 
 You'll be propted with a required input in which you can specify reference for the environment to test. Every input item is overridable by passing its specific env variable:
 
+##### api
 *  backend api host (`IO_BACKEND_HOST`) - hostname, including protocol and excluding trailing `/` 
 *  backend api base path (`IO_BACKEND_BASEPATH`) - basepath, including leading `/` and excluding trailing `/` 
+
+##### session token
+* a valid session token (`SPID_SESSION_TOKEN`)
+
+*or*
+
+* SPID test env (`SPID_LOGIN_HOST`) - hostname, including protocol and excluding trailing `/` 
+* username (`SPID_USERNAME`)
+* password (`SPID_PASSWORD`)
 
 ## License
 Please refer to [IO license agreement](https://github.com/pagopa/io-app/blob/master/LICENSE).
