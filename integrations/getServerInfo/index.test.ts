@@ -1,13 +1,16 @@
 import fetchApi from "../../lib/fetch";
-import { getEnvValue } from "../../lib/env";
-
+import { EnvMap } from "../../lib/types";
+import { fromNullable } from "fp-ts/lib/Option";
 import { basicResponseDecoder } from "italia-ts-commons/lib/requests";
 import { ServerInfo } from "../../generated/definitions/backend/ServerInfo";
 
+
 const decoder = basicResponseDecoder(ServerInfo);
 
+const globalEnv: EnvMap = process.env;
+
 describe("getServerInfo", () => {
-  const host = getEnvValue("IO_BACKEND_HOST").getOrElseL(() => {
+  const host = fromNullable(globalEnv.IO_BACKEND_HOST).getOrElseL(() => {
     throw new Error(`required value dor "IO_BACKEND_HOST"`);
   });
   const endpoint = `${host}/info`;

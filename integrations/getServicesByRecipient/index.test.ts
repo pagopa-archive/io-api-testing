@@ -1,4 +1,5 @@
-import { getEnvValue } from "../../lib/env";
+import { EnvMap } from "../../lib/types";
+import { fromNullable } from "fp-ts/lib/Option";
 import fetchApi from "../../lib/fetch";
 
 import { basicResponseDecoder } from "italia-ts-commons/lib/requests";
@@ -6,14 +7,16 @@ import { PaginatedServiceTupleCollection } from "../../generated/definitions/bac
 
 const decoder = basicResponseDecoder(PaginatedServiceTupleCollection);
 
+const globalEnv: EnvMap = process.env;
+
 describe("getServicesByRecipient", () => {
-  const host = getEnvValue("IO_BACKEND_HOST").getOrElseL(() => {
+  const host = fromNullable(globalEnv.IO_BACKEND_HOST).getOrElseL(() => {
     throw new Error(`required value dor "IO_BACKEND_HOST"`);
   });
-  const basePath = getEnvValue("IO_BACKEND_BASEPATH").getOrElseL(() => {
+  const basePath = fromNullable(globalEnv.IO_BACKEND_BASEPATH).getOrElseL(() => {
     throw new Error(`required value dor "IO_BACKEND_BASEPATH"`);
   });
-  const sessionToken = getEnvValue("SPID_SESSION_TOKEN").getOrElseL(() => {
+  const sessionToken = fromNullable(globalEnv.SPID_SESSION_TOKEN).getOrElseL(() => {
     throw new Error(`required value dor "SPID_SESSION_TOKEN"`);
   });
   const endpoint = `${host}${basePath}/profile/sender-services`;
