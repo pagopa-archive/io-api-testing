@@ -1,83 +1,46 @@
-import { prompt } from "enquirer";
+import { ParamReadError, RequiredParamError } from "../lib/errors";
 import { EnvMap, SuiteParams } from "../lib/types";
 import { loginLevel1 } from "../spid-env-test";
 
-import { tryCatch, taskEitherSeq } from "fp-ts/lib/TaskEither";
+import { tryCatch, taskEitherSeq, fromEither } from "fp-ts/lib/TaskEither";
 import { fromNullable } from "fp-ts/lib/Option";
-import { toError } from "fp-ts/lib/Either";
+import {
+  toError,
+  left,
+  right,
+  either,
+  Either,
+  fromNullable as fromNullableE
+} from "fp-ts/lib/Either";
 import { array } from "fp-ts/lib/Array";
-
-class ParamReadError extends Error {
-  constructor(reason: any) {
-    if (typeof reason === "string") {
-      super(`Something went wrong while reading params. Reason: ${reason}`);
-    } else {
-      console.error("ParamReadError", reason);
-      super(
-        `Something went wrong while reading params. Probably the program was forced to terminate.`
-      );
-    }
-  }
-}
-
-const singlePrompt = ({ message }: { message: string }) => () =>
-  prompt({
-    type: "input",
-    name: "value",
-    message,
-    validate(value: string /*, state, item, index*/) {
-      if (!value) {
-        return "required";
-      }
-      return true;
-    }
-  }).then((e: Partial<{ value: string }>) => e.value || "");
 
 const suiteParams: SuiteParams = { ...process.env };
 
-const backendHostTask = tryCatch(
-  fromNullable(suiteParams.IO_BACKEND_HOST).fold(
-    singlePrompt({ message: "Insert the IO Backend host" }),
-    value => () => Promise.resolve(value)
-  ),
-  toError
-);
+const backendHostTask = fromNullableE(
+  new RequiredParamError("IO_BACKEND_HOST")
+)(suiteParams.IO_BACKEND_HOST);
 
-const backendBasepathTask = tryCatch(
-  fromNullable(suiteParams.IO_BACKEND_BASEPATH).fold(
-    singlePrompt({ message: "Insert the IO Backend base path" }),
-    value => () => Promise.resolve(value)
-  ),
-  toError
-);
+const backendBasepathTask = fromNullableE(
+  new RequiredParamError("IO_BACKEND_BASEPATH")
+)(suiteParams.IO_BACKEND_BASEPATH);
 
-const spidTestenvHostTask = tryCatch(
-  fromNullable(suiteParams.SPID_LOGIN_HOST).fold(
-    singlePrompt({ message: "Insert spid test host" }),
-    value => () => Promise.resolve(value)
-  ),
-  toError
-);
+const spidTestenvHostTask = fromNullableE(
+  new RequiredParamError("SPID_LOGIN_HOST")
+)(suiteParams.SPID_LOGIN_HOST);
 
-const usernameTask = tryCatch(
-  fromNullable(suiteParams.SPID_USERNAME).fold(
-    singlePrompt({ message: "Insert username" }),
-    value => () => Promise.resolve(value)
-  ),
-  toError
-);
+const usernameTask = fromNullableE(
+  new RequiredParamError("SPID_USERNAME")
+)(suiteParams.SPID_USERNAME);
 
-const passwordTask = tryCatch(
-  fromNullable(suiteParams.SPID_PASSWORD).fold(
-    singlePrompt({ message: "Insert password" }),
-    value => () => Promise.resolve(value)
-  ),
-  toError
-);
+const passwordTask = fromNullableE(
+  new RequiredParamError("SPID_PASSWORD")
+)(suiteParams.SPID_PASSWORD);
 
 const sessionTokenTask = fromNullable(suiteParams.SPID_SESSION_TOKEN).fold(
   array
-    .sequence(taskEitherSeq)([spidTestenvHostTask, usernameTask, passwordTask])
+    .sequence(taskEitherSeq)(
+      [spidTestenvHostTask, usernameTask, passwordTask].map(fromEither)
+    )
     .chain(([host, username, password]) =>
       loginLevel1({
         username,
@@ -91,8 +54,8 @@ const sessionTokenTask = fromNullable(suiteParams.SPID_SESSION_TOKEN).fold(
 const environmentSetup = async (): Promise<EnvMap> => {
   return array
     .sequence(taskEitherSeq)([
-      backendHostTask,
-      backendBasepathTask,
+      fromEither(backendHostTask),
+      fromEither(backendBasepathTask),
       sessionTokenTask
     ])
     .fold(
