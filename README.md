@@ -11,8 +11,23 @@ We need to test the API ecosystem behind [IO-app](https://github.com/pagopa/io-a
 ## Usage
 ```
 yarn install
+yarn generate
 yarn start 
 ```
+
+### Environment variables
+
+Those are all Environment variables needed by the application:
+
+| Variable name                          | Description                                                                       | type   |
+|----------------------------------------|-----------------------------------------------------------------------------------|--------|
+| IO_BACKEND_HOST                        | App backend API hostname, including protocol and excluding trailing `/`           | string |
+| IO_BACKEND_BASEPATH                    | App backend API base path, including protocol and excluding trailing `/`          | string |
+| SPID_SESSION_TOKEN                     | A valid session token                                                             | string |
+| SPID_LOGIN_HOST                        | Hostname for the SPID test provider                                               | string |
+| SPID_USERNAME                          | Username for the SPID test provider                                               | string |
+| SPID_PASSWORD                          | Password for the SPID test provider                                               | string |
+
 
 ## License
 Please refer to [IO license agreement](https://github.com/pagopa/io-app/blob/master/LICENSE).

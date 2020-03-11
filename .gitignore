@@ -17,9 +17,9 @@ npm-debug.log
 /.env
 
 # Exclude typescript generated javascript files.
-*.js
+dist/*.js
 !.release-it.js
-*.js.map
+dist/*.js.map
 
 # Excluded auto-generated API client.
 /src/clients/pagopa
