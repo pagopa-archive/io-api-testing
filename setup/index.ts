@@ -2,16 +2,9 @@ import { ParamReadError, RequiredParamError } from "../lib/errors";
 import { EnvMap, SuiteParams } from "../lib/types";
 import { loginLevel1 } from "../spid-env-test";
 
-import { tryCatch, taskEitherSeq, fromEither } from "fp-ts/lib/TaskEither";
+import { taskEitherSeq, fromEither, taskEither } from "fp-ts/lib/TaskEither";
 import { fromNullable } from "fp-ts/lib/Option";
-import {
-  toError,
-  left,
-  right,
-  either,
-  Either,
-  fromNullable as fromNullableE
-} from "fp-ts/lib/Either";
+import { fromNullable as fromNullableE } from "fp-ts/lib/Either";
 import { array } from "fp-ts/lib/Array";
 
 const suiteParams: SuiteParams = { ...process.env };
@@ -39,7 +32,7 @@ const passwordTask = fromNullableE(
 const sessionTokenTask = fromNullable(suiteParams.SPID_SESSION_TOKEN).fold(
   array
     .sequence(taskEitherSeq)(
-      [spidTestenvHostTask, usernameTask, passwordTask].map(fromEither)
+      [backendHostTask, usernameTask, passwordTask].map(fromEither)
     )
     .chain(([host, username, password]) =>
       loginLevel1({
@@ -48,7 +41,7 @@ const sessionTokenTask = fromNullable(suiteParams.SPID_SESSION_TOKEN).fold(
         host
       })
     ),
-  value => tryCatch(() => Promise.resolve(value), toError)
+  taskEither.of
 );
 
 const environmentSetup = async (): Promise<EnvMap> => {

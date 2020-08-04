@@ -19,14 +19,13 @@ yarn start
 
 Those are all Environment variables needed by the application:
 
-| Variable name                          | Description                                                                       | type   |
-|----------------------------------------|-----------------------------------------------------------------------------------|--------|
-| IO_BACKEND_HOST                        | App backend API hostname, including protocol and excluding trailing `/`           | string |
-| IO_BACKEND_BASEPATH                    | App backend API base path, including protocol and excluding trailing `/`          | string |
-| SPID_SESSION_TOKEN                     | A valid session token                                                             | string |
-| SPID_LOGIN_HOST                        | Hostname for the SPID test provider                                               | string |
-| SPID_USERNAME                          | Username for the SPID test provider                                               | string |
-| SPID_PASSWORD                          | Password for the SPID test provider                                               | string |
+| Variable name       | Description                                                                 | type   |
+|---------------------|-----------------------------------------------------------------------------|--------|
+| IO_BACKEND_HOST     | App backend API hostname, including protocol and excluding trailing `/`     | string |
+| IO_BACKEND_BASEPATH | App backend API base path, excluding trailing `/`                           | string |
+| SPID_SESSION_TOKEN  | A valid session token                                                       | string |
+| SPID_USERNAME       | Username for the SPID test provider (needed id SPID_SESSION_TOKEN is empty) | string |
+| SPID_PASSWORD       | Password for the SPID test provider (needed id SPID_SESSION_TOKEN is empty) | string |
 
 
 ## License

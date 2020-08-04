@@ -1,4 +1,4 @@
-import { tryCatch, taskEitherSeq, fromEither } from "fp-ts/lib/TaskEither";
+import { tryCatch, taskEitherSeq, fromEither, fromLeft } from "fp-ts/lib/TaskEither";
 import { toError, left, Either, right } from "fp-ts/lib/Either";
 import { array } from "fp-ts/lib/Array";
 
@@ -27,11 +27,19 @@ export const loginLevel1 = ({
   username,
   password
 }: LoginLevel1Params) => {
-  const loginUrl = `${host}/login?entityID=xx_testenv2&authLevel=SpidL1`;
+  const loginUrl = `${host}/login?entityID=xx_testenv2&authLevel=SpidL2`;
 
   let br: Browser, pg: Page;
 
-  return tryCatch(() => launch({ headless: true, devtools: true }), toError)
+  const closeBrowser = tryCatch(async () => {
+        console.log('closing browser')
+        await br.close();
+      }, toError)
+
+  return tryCatch(
+    () => launch({ headless: true, devtools: true, ignoreHTTPSErrors: true }),
+    toError
+  )
     .chain(browser => {
       br = browser;
       return tryCatch(() => browser.pages(), toError);
@@ -55,10 +63,11 @@ export const loginLevel1 = ({
     .chain(() => {
       return fromEither(readToken(pg));
     })
-    .chain(token =>
-      tryCatch(async () => {
-        await br.close();
-        return token;
-      }, toError)
+    .foldTaskEither<Error, string>(
+      error => closeBrowser.foldTaskEither<Error, string>(
+        _ => fromLeft(error),
+        _ => fromLeft(error)
+      ),
+      token => closeBrowser.map(_ => token)
     );
 };

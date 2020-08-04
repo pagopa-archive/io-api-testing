@@ -7,12 +7,13 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "start": "jest -- ",
+    "start": "dotenv -e .env -- jest",
     "generate": "npm-run-all generate:api:*",
     "generate:api:backend": "rimraf generated/backend && mkdir -p generated/backend && gen-api-models --api-spec https://raw.githubusercontent.com/pagopa/io-backend/master/api_backend.yaml --no-strict --out-dir generated/backend --request-types --response-decoders",
     "generate:api:backend-definitions": "rimraf generated/definitions/backend && mkdir -p generated/definitions/backend && gen-api-models --api-spec https://raw.githubusercontent.com/pagopa/io-backend/master/api_backend.yaml --out-dir ./generated/definitions/backend --no-strict --request-types --response-decoders  && gen-api-models --api-spec https://raw.githubusercontent.com/pagopa/io-backend/master/api_public.yaml --out-dir ./generated/definitions/backend"
   },
   "dependencies": {
+    "dotenv-cli": "^3.2.0",
     "fp-ts": "1.17.x",
     "io-ts": "1.8.5",
     "italia-ts-commons": "^5.1.13",
