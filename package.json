@@ -10,7 +10,9 @@
     "start": "dotenv -e .env -- jest",
     "generate": "npm-run-all generate:api:*",
     "generate:api:backend": "rimraf generated/backend && mkdir -p generated/backend && gen-api-models --api-spec https://raw.githubusercontent.com/pagopa/io-backend/master/api_backend.yaml --no-strict --out-dir generated/backend --request-types --response-decoders",
-    "generate:api:backend-definitions": "rimraf generated/definitions/backend && mkdir -p generated/definitions/backend && gen-api-models --api-spec https://raw.githubusercontent.com/pagopa/io-backend/master/api_backend.yaml --out-dir ./generated/definitions/backend --no-strict --request-types --response-decoders  && gen-api-models --api-spec https://raw.githubusercontent.com/pagopa/io-backend/master/api_public.yaml --out-dir ./generated/definitions/backend"
+    "generate:api:backend-definitions": "rimraf generated/definitions/backend && mkdir -p generated/definitions/backend && gen-api-models --api-spec https://raw.githubusercontent.com/pagopa/io-backend/master/api_backend.yaml --out-dir ./generated/definitions/backend --no-strict --request-types --response-decoders  && gen-api-models --api-spec https://raw.githubusercontent.com/pagopa/io-backend/master/api_public.yaml --out-dir ./generated/definitions/backend",
+    "prepare": "yarn run snyk-protect",
+    "snyk-protect": "snyk-protect"
   },
   "dependencies": {
     "dotenv-cli": "^3.2.0",
@@ -18,8 +20,9 @@
     "io-ts": "1.8.5",
     "italia-ts-commons": "^5.1.13",
     "jest": "25.1.0",
-    "node-fetch": "^2.6.0",
-    "puppeteer": "^2.1.1"
+    "node-fetch": "^2.6.7",
+    "puppeteer": "^2.1.1",
+    "@snyk/protect": "latest"
   },
   "devDependencies": {
     "@types/jest": "25.1.3",
@@ -36,5 +39,6 @@
     "ts-jest": "25.2.1",
     "ts-lint": "^4.5.1",
     "typescript": "3.8.2"
-  }
+  },
+  "snyk": true
 }
